@@ -3,7 +3,7 @@ public with sharing class OrderableProductsController {
   static Integer gOffset = 5;
 
   @AuraEnabled(cacheable=true)
-  public static List<PricebookEntry> listEligibleProducts(
+  public static Map<String, List<SObject>> listEligibleProducts(
     ID sOrderId,
     Integer sOffset
   ) {
@@ -11,9 +11,10 @@ public with sharing class OrderableProductsController {
     if (sOffset < 0) {
       sOffset = gOffset;
     }
+    Map<String, List<SObject>> result = new Map<String, List<SObject>>();
     try {
       // Paginate all the active Pricebook Entries for Current Order's Pricebook Id
-      return [
+      List<PricebookEntry> pricebookEntries = [
         SELECT Id, Name, Product2Id, ProductCode, UnitPrice
         FROM PricebookEntry
         WHERE
@@ -27,6 +28,11 @@ public with sharing class OrderableProductsController {
         LIMIT :gLimit
         OFFSET :sOffset
       ];
+      // To display actions based on order status on LWC.
+      List<Order> orders = [SELECT Status FROM Order WHERE Id = :sOrderId];
+      result.put('PricebookEntry', pricebookEntries);
+      result.put('Order', orders);
+      return result;
     } catch (Exception e) {
       throw new AuraHandledException(e.getMessage());
     }
@@ -35,6 +41,7 @@ public with sharing class OrderableProductsController {
   @AuraEnabled(cacheable=true)
   public static Integer countEligibleProducts(ID sOrderId) {
     try {
+      // Count all the active Pricebook Entries for Current Order's Pricebook Id
       return [
         SELECT COUNT()
         FROM PricebookEntry
@@ -46,15 +53,6 @@ public with sharing class OrderableProductsController {
             WHERE Id = :sOrderId
           )
       ];
-    } catch (Exception e) {
-      throw new AuraHandledException(e.getMessage());
-    }
-  }
-
-  @AuraEnabled(cacheable=true)
-  public static List<Order> getOrderStatus(ID sOrderId) {
-    try {
-      return [SELECT Id, Status FROM Order WHERE Id = :sOrderId];
     } catch (Exception e) {
       throw new AuraHandledException(e.getMessage());
     }
