@@ -11,7 +11,7 @@ import listOrderProducts from '@salesforce/apex/OrderProductsController.listOrde
 import addProductToOrder from '@salesforce/apex/OrderProductsController.addProductToOrder';
 import deleteProductFromOrder from '@salesforce/apex/OrderProductsController.deleteProductFromOrder';
 
-
+// Datatable column definiton
 const columns = [
     { 
         label: 'Product', 
@@ -76,21 +76,25 @@ export default class OrderProductsListLWC extends LightningElement {
     _orderProductsRaw;
     isCssLoaded = false
 
+    // Get Total Order Price
     @wire(getOrderProductsTotalPrice, {sOrderId: '$recordId'})
     totalPrice
 
+    // Get Order Item Total Quantity
     @wire(getOrderProductsTotalQuantity, {sOrderId: '$recordId'})
     totalQuantity
 
+    // Get Order Proucts
     @wire(listOrderProducts, {sOrderId: '$recordId'})
     listOrderProducts(wireResult) {
         const { data, error } = wireResult;
-        this._orderProductsRaw = wireResult;
+        this._orderProductsRaw = wireResult; // Cache original return value
         if (data) {
             this.orderProducts = data.map(elem => ({
-                ...elem, Name: elem.Product2.Name, 
-                CSSClass: "total-padding-right",
-                disabled: elem.Order.Status !== 'Draft'
+                ...elem, 
+                Name: elem.Product2.Name, // Flatten Product Name
+                CSSClass: "total-padding-right",  // Adjust for datatable scrollbar for rows more than total height
+                disabled: elem.Order.Status !== 'Draft'  // Add, Remove buttons disabled
             }));
             this.error = undefined;
         } else {
@@ -99,6 +103,7 @@ export default class OrderProductsListLWC extends LightningElement {
         }
     }
 
+    // Actions
     handleRowAction(event) {
         const action = event.detail.action;
         switch (action.name) {
@@ -117,6 +122,7 @@ export default class OrderProductsListLWC extends LightningElement {
                             variant: 'success'
                         })
                     );
+                    // Refresh Cache
                     const updatedOrders = result.map(rec => {
                         return { 'recordId': rec };
                     });
@@ -139,12 +145,13 @@ export default class OrderProductsListLWC extends LightningElement {
                 });
                 break;
             case 'remove_from_order':
-                if (event.detail.row.Quantity > 1) {
+                if (event.detail.row.Quantity > 1) {  // No confirmation before removing order products
                     deleteProductFromOrder({
                         sOrderId: this.recordId,
                         sOrderItemId: event.detail.row.Id
                     })
                     .then(result_inner  => {
+                        // Refresh Cache
                         const updatedOrders = result_inner.map(rec => {
                             return { 'recordId': rec };
                         });
@@ -164,7 +171,7 @@ export default class OrderProductsListLWC extends LightningElement {
                             })
                         );
                     });
-                } else {
+                } else {  // Confirmation before removing last of each order products
                     LightningConfirm.open({
                         message: 'Are you sure you want to delete the last "' +  event.detail.row.Name + '" product from the order?',
                         variant: 'header',
@@ -184,6 +191,7 @@ export default class OrderProductsListLWC extends LightningElement {
                                         variant: 'success'
                                     })
                                 );
+                                // Refresh Cache
                                 const updatedOrders = result_inner.map(rec => {
                                     return { 'recordId': rec };
                                 });
@@ -221,6 +229,7 @@ export default class OrderProductsListLWC extends LightningElement {
         }
     }
 
+    // Load static CSS appCustom.css
     renderedCallback(){ 
         if (this.isCssLoaded) return;
         this.isCssLoaded = true;
