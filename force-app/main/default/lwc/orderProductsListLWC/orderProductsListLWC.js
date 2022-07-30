@@ -151,7 +151,6 @@ export default class OrderProductsListLWC extends LightningElement {
                         const updatedOrderProducts = [event.detail.row.Id];
                         getRecordNotifyChange(updatedOrders);
                         getRecordNotifyChange(updatedOrderProducts);
-                        getRecordNotifyChange(this.orderProducts);
                         refreshApex(this.totalPrice);
                         refreshApex(this.totalQuantity);
                         refreshApex(this._orderProductsRaw);
@@ -191,7 +190,6 @@ export default class OrderProductsListLWC extends LightningElement {
                                 const updatedOrderProducts = [event.detail.row.Id];
                                 getRecordNotifyChange(updatedOrders);
                                 getRecordNotifyChange(updatedOrderProducts);
-                                getRecordNotifyChange(this.orderProducts);
                                 refreshApex(this.totalPrice);
                                 refreshApex(this.totalQuantity);
                                 refreshApex(this._orderProductsRaw);
