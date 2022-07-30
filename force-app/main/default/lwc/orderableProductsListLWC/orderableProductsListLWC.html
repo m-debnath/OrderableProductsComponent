@@ -1,0 +1,28 @@
+<!-- sldsValidatorIgnore -->
+<template>
+    <lightning-card title="Available Products" icon-name="standard:price_book_entries">
+        <div class="slds-var-m-around_medium">
+            <div>
+                <p class="slds-var-p-bottom_x-small">
+                    Please click the cart icon to add products to cart.
+                </p>
+            </div>
+            <div class="slds-border_bottom" style="height: 239px;">
+                <lightning-datatable
+                    key-field="Id"
+                    data={data}
+                    columns={columns}
+                    enable-infinite-loading
+                    onloadmore={loadMoreData}
+                    load-more-offset="20"
+                    hide-checkbox-column="true"
+                    max-row-selection="1"
+                    onrowaction={addProudctToOrder}>
+                </lightning-datatable>
+            </div>
+            <div style="text-align: center;" class="slds-var-p-top_x-small">
+                Loaded {data.length} of {totalNumberOfRows.data} products.
+            </div>
+        </div>
+    </lightning-card>
+</template>

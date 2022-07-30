@@ -1,0 +1,16 @@
+SELECT Pricebook2Id FROM Order WHERE Id = '801Iw000000FXXyIAO'
+
+SELECT COUNT() FROM PricebookEntry WHERE IsActive = true AND Pricebook2Id IN
+(SELECT Pricebook2Id FROM Order WHERE Id = '801Iw000000FXXyIAO')
+
+SELECT Name,Product2Id,ProductCode,UnitPrice FROM PricebookEntry WHERE IsActive = true AND Pricebook2Id IN
+(SELECT Pricebook2Id FROM Order WHERE Id = '801Iw000000FXXyIAO') ORDER BY Name ASC LIMIT 5 OFFSET 0
+
+SELECT Id,ListPrice,PricebookEntryId,Product2Id,Quantity,TotalPrice,UnitPrice FROM OrderItem WHERE OrderId = '801Iw000000FXXyIAO'
+
+
+SELECT Id,Product2.Name,Quantity,TotalPrice,UnitPrice FROM OrderItem WHERE OrderId = '801Iw000000FXXyIAO'
+
+SELECT SUM(TotalPrice) FROM OrderItem WHERE OrderId = '801Iw000000FXXyIAO'
+
+SELECT SUM(Quantity) FROM OrderItem WHERE OrderId = '801Iw000000FXXyIAO'

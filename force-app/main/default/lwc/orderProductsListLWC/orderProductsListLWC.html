@@ -1,0 +1,31 @@
+<!-- sldsValidatorIgnore -->
+<template>
+    <lightning-card title="Products in the cart" icon-name="standard:webcart">
+        <div class="slds-var-m-around_medium">
+            <div>
+                <p class="slds-var-p-bottom_x-small">
+                    Please click the confirm button to activate the order.
+                </p>
+            </div>
+            <div class="slds-border_bottom_medium" style="height: 239px; overflow-x: hidden;">
+                <lightning-datatable
+                    key-field="Id"
+                    data={orderProducts}
+                    columns={columns}
+                    hide-checkbox-column="true"
+                    max-row-selection="1"
+                    onrowaction={handleRowAction}
+                    style="overflow-x: hidden;">
+                </lightning-datatable>
+            </div>
+            <div class="slds-grid slds-var-p-top_x-small">
+                <div class="slds-col slds-var-p-left_small slds-text-align_left" style="width: 140px; font-weight: bold;">Total</div>
+                <div class="slds-col slds-var-p-left_large slds-text-align_center">{totalQuantity.data}</div>
+                <div class="slds-col">&nbsp;</div>
+                <div class="slds-col slds-var-p-right_large slds-text-align_right">
+                    <lightning-formatted-number value={totalPrice.data} format-style="currency"></lightning-formatted-number>
+                </div>
+            </div>
+        </div>
+    </lightning-card>
+</template>
