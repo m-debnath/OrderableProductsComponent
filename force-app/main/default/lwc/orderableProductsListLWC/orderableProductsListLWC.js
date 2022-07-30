@@ -26,7 +26,7 @@ const columns = [
             title: 'Add to Cart',
             variant: 'brand',
             alternativeText: 'Add',
-            disabled: false,
+            disabled: { fieldName: 'disabled' },
         }
     }
 ];
@@ -60,7 +60,12 @@ export default class OrderableProductsListLWC extends NavigationMixin(LightningE
     listEligibleProducts() {
         listEligibleProducts({ sOrderId: this.recordId, sOffset: this.sOffset })
         .then(result => {
-            result = JSON.parse(JSON.stringify(result));
+            const orders = JSON.parse(JSON.stringify(result.Order));
+            result = JSON.parse(JSON.stringify(result.PricebookEntry));
+            result = result.map(elem => ({
+                ...elem, 
+                disabled: orders[0].Status !== 'Draft'
+            }));
             this.data = [...this.data, ...result];
             this.error = undefined;
             if (this.targetDatatable && this.data.length >= this.totalNumberOfRows.data) {
@@ -71,8 +76,8 @@ export default class OrderableProductsListLWC extends NavigationMixin(LightningE
         .catch(error => {
             this.error = error;
             this.data = undefined;
-            console.log('Error : ' + JSON.stringify(this.error));
             if (this.targetDatatable) this.targetDatatable.isLoading = false;
+            console.error('Error : ' + JSON.stringify(this.error));
         })
     }
 
