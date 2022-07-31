@@ -8,8 +8,10 @@ import customStyles from '@salesforce/resourceUrl/appCustom'
 import getOrderProductsTotalPrice from '@salesforce/apex/OrderProductsController.getOrderProductsTotalPrice';
 import getOrderProductsTotalQuantity from '@salesforce/apex/OrderProductsController.getOrderProductsTotalQuantity';
 import listOrderProducts from '@salesforce/apex/OrderProductsController.listOrderProducts';
+import getOrderStatus from '@salesforce/apex/OrderProductsController.getOrderStatus';
 import addProductToOrder from '@salesforce/apex/OrderProductsController.addProductToOrder';
 import deleteProductFromOrder from '@salesforce/apex/OrderProductsController.deleteProductFromOrder';
+import submitOrderRequest from '@salesforce/apex/OrderProductsController.submitOrderRequest';
 
 // Datatable column definiton
 const columns = [
@@ -73,8 +75,33 @@ export default class OrderProductsListLWC extends LightningElement {
     @track error;
     columns = columns;
     @track orderProducts;
+    @track draftStatus = false;  // To enable Confirm button
+    @track activeStatus = false;  // To enable Complete button
     _orderProductsRaw;
+    _orderStatusRaw;
     isCssLoaded = false
+    @track clickedButtonLabel;
+    @track isLoading = false;
+
+    // Load static CSS appCustom.css
+    renderedCallback(){ 
+        if (this.isCssLoaded) return;
+        this.isCssLoaded = true;
+        loadStyle(this, customStyles);
+    }
+
+    @wire(getOrderStatus, {sOrderId: '$recordId'})
+    getOrderStatus(wireResult) {
+        this._orderStatusRaw = wireResult;
+        const { data, error } = wireResult;
+        if (data) {
+            this.draftStatus = data === "Draft";
+            this.activeStatus = data === "Activated";
+            this.error = undefined;
+        } else {
+            this.error = error;
+        }
+    }
 
     // Get Total Order Price
     @wire(getOrderProductsTotalPrice, {sOrderId: '$recordId'})
@@ -229,10 +256,48 @@ export default class OrderProductsListLWC extends LightningElement {
         }
     }
 
-    // Load static CSS appCustom.css
-    renderedCallback(){ 
-        if (this.isCssLoaded) return;
-        this.isCssLoaded = true;
-        loadStyle(this, customStyles);
+    handleClick(event) {
+        this.clickedButtonLabel = event.target.label;
+        switch (this.clickedButtonLabel) {
+            case 'Cancel':
+                this.isLoading = true;
+                console.log('Cancel');
+                break;
+            case 'Confirm':
+                this.isLoading = true;
+                submitOrderRequest({sOrderId: this.recordId})
+                .then(result => {
+                    if (result.code) {
+                        if (result.code === '200') {
+                            refreshApex(this._orderStatusRaw);
+                            refreshApex(this._orderProductsRaw);
+                            this.dispatchEvent(
+                                new ShowToastEvent({
+                                    title: 'Success',
+                                    message: 'Order was activated successfully.',
+                                    variant: 'success'
+                                })
+                            );
+                        } else {
+                            this.dispatchEvent(
+                                new ShowToastEvent({
+                                    title: 'Error activating order.',
+                                    message: result.message,
+                                    variant: 'error'
+                                })
+                            );
+                        }
+                    }
+                    this.isLoading = false;
+                })
+                .catch(error => {
+                    this.error = error;
+                    console.error(error);
+                    this.isLoading = false;
+                })
+                break;
+            default:
+                break;
+        }
     }
 }
