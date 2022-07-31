@@ -12,6 +12,9 @@ import getOrderStatus from '@salesforce/apex/OrderProductsController.getOrderSta
 import addProductToOrder from '@salesforce/apex/OrderProductsController.addProductToOrder';
 import deleteProductFromOrder from '@salesforce/apex/OrderProductsController.deleteProductFromOrder';
 import submitOrderRequest from '@salesforce/apex/OrderProductsController.submitOrderRequest';
+import { publish, subscribe, MessageContext } from 'lightning/messageService';
+import PRODUCTS_TO_CART_CHANNEL from '@salesforce/messageChannel/AvailableProductsToCart__c';
+import CART_TO_PRODUCTS_CHANNEL from '@salesforce/messageChannel/CartsToAvailableProducts__c';
 
 // Datatable column definiton
 const columns = [
@@ -90,6 +93,9 @@ export default class OrderProductsListLWC extends LightningElement {
         loadStyle(this, customStyles);
     }
 
+    @wire(MessageContext)
+    messageContext;
+
     @wire(getOrderStatus, {sOrderId: '$recordId'})
     getOrderStatus(wireResult) {
         this._orderStatusRaw = wireResult;
@@ -130,6 +136,26 @@ export default class OrderProductsListLWC extends LightningElement {
         }
     }
 
+    connectedCallback() {
+        this.subscribeToMessageChannel();
+    }
+
+    subscribeToMessageChannel() {
+        this.subscription = subscribe(
+            this.messageContext,
+            PRODUCTS_TO_CART_CHANNEL,
+            (message) => this.handleMessage(message)
+        );
+    }
+
+    handleMessage(message) {
+        if (message.code === 'REFRESH_CACHE') {
+            refreshApex(this.totalPrice);
+            refreshApex(this.totalQuantity);
+            refreshApex(this._orderProductsRaw);
+        }
+    }
+
     // Actions
     handleRowAction(event) {
         const action = event.detail.action;
@@ -156,7 +182,6 @@ export default class OrderProductsListLWC extends LightningElement {
                     const updatedOrderProducts = [event.detail.row.Id];
                     getRecordNotifyChange(updatedOrders);
                     getRecordNotifyChange(updatedOrderProducts);
-                    getRecordNotifyChange(this.orderProducts);
                     refreshApex(this.totalPrice);
                     refreshApex(this.totalQuantity);
                     refreshApex(this._orderProductsRaw);
@@ -225,6 +250,11 @@ export default class OrderProductsListLWC extends LightningElement {
                                 const updatedOrderProducts = [event.detail.row.Id];
                                 getRecordNotifyChange(updatedOrders);
                                 getRecordNotifyChange(updatedOrderProducts);
+                                const payload = { 
+                                    code: 'REFRESH_CACHE',
+                                    message: 'Refresh Cache'
+                                };
+                                publish(this.messageContext, CART_TO_PRODUCTS_CHANNEL, payload);
                                 refreshApex(this.totalPrice);
                                 refreshApex(this.totalQuantity);
                                 refreshApex(this._orderProductsRaw);
@@ -265,6 +295,13 @@ export default class OrderProductsListLWC extends LightningElement {
                 .then(result => {
                     if (result.code) {
                         if (result.code === '200') {
+                            // Refresh cache
+                            getRecordNotifyChange([{recordId: this.recordId}]);
+                            const payload = { 
+                                code: 'REFRESH_CACHE',
+                                message: 'Refresh Cache'
+                            };
+                            publish(this.messageContext, CART_TO_PRODUCTS_CHANNEL, payload);
                             refreshApex(this._orderStatusRaw);
                             refreshApex(this._orderProductsRaw);
                             this.dispatchEvent(
@@ -290,6 +327,13 @@ export default class OrderProductsListLWC extends LightningElement {
                     this.error = error;
                     console.error(error);
                     this.isLoading = false;
+                    this.dispatchEvent(
+                        new ShowToastEvent({
+                            title: 'Error activating order.',
+                            message: error.message,
+                            variant: 'error'
+                        })
+                    );
                 })
                 break;
             default:
