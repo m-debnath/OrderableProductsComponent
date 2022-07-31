@@ -1,3 +1,7 @@
 .total-padding-right {
     padding-right: 23px !important;
 }
+
+.products-datatable tbody > tr {
+    height: 41px !important;
+}
