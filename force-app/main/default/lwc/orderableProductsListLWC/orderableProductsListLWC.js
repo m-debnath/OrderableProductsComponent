@@ -65,11 +65,9 @@ export default class OrderableProductsListLWC extends NavigationMixin(LightningE
     listEligibleProducts() {
         listEligibleProducts({ sOrderId: this.recordId, nOffset: this.nOffset, nLimit: this.nStep })
         .then(result => {
-            const orders = JSON.parse(JSON.stringify(result.Order));
-            result = JSON.parse(JSON.stringify(result.PricebookEntry));
+            result = JSON.parse(JSON.stringify(result));
             result = result.map(elem => ({
                 ...elem, 
-                disabled: orders[0].Status !== 'Draft',
                 CSSClass: "total-padding-right"  // Adjust for datatable scrollbar for rows more than total height
             }));
             this.data = [...this.data, ...result];

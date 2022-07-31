@@ -3,7 +3,7 @@ public with sharing class OrderableProductsController {
   static Integer gOffset = 5;
 
   @AuraEnabled(cacheable=true)
-  public static Map<String, List<SObject>> listEligibleProducts(
+  public static List<PricebookEntry> listEligibleProducts(
     ID sOrderId,
     Integer nOffset,
     Integer nLimit
@@ -15,10 +15,9 @@ public with sharing class OrderableProductsController {
     if (nLimit < 0) {
       nLimit = gLimit;
     }
-    Map<String, List<SObject>> result = new Map<String, List<SObject>>();
     try {
       // Paginate all the active Pricebook Entries for Current Order's Pricebook Id
-      List<PricebookEntry> pricebookEntries = [
+      return [
         SELECT Id, Name, Product2Id, ProductCode, UnitPrice
         FROM PricebookEntry
         WHERE
@@ -32,11 +31,6 @@ public with sharing class OrderableProductsController {
         LIMIT :nLimit
         OFFSET :nOffset
       ];
-      // To display actions based on order status on LWC.
-      List<Order> orders = [SELECT Status FROM Order WHERE Id = :sOrderId];
-      result.put('PricebookEntry', pricebookEntries);
-      result.put('Order', orders);
-      return result;
     } catch (Exception e) {
       throw new AuraHandledException(e.getMessage());
     }
