@@ -8,10 +8,15 @@ import customStyles from '@salesforce/resourceUrl/appCustom'
 import getOrderProductsTotalPrice from '@salesforce/apex/OrderProductsController.getOrderProductsTotalPrice';
 import getOrderProductsTotalQuantity from '@salesforce/apex/OrderProductsController.getOrderProductsTotalQuantity';
 import listOrderProducts from '@salesforce/apex/OrderProductsController.listOrderProducts';
+import getOrderStatus from '@salesforce/apex/OrderProductsController.getOrderStatus';
 import addProductToOrder from '@salesforce/apex/OrderProductsController.addProductToOrder';
 import deleteProductFromOrder from '@salesforce/apex/OrderProductsController.deleteProductFromOrder';
+import submitOrderRequest from '@salesforce/apex/OrderProductsController.submitOrderRequest';
+import { publish, subscribe, MessageContext } from 'lightning/messageService';
+import PRODUCTS_TO_CART_CHANNEL from '@salesforce/messageChannel/AvailableProductsToCart__c';
+import CART_TO_PRODUCTS_CHANNEL from '@salesforce/messageChannel/CartsToAvailableProducts__c';
 
-
+// Datatable column definiton
 const columns = [
     { 
         label: 'Product', 
@@ -73,24 +78,56 @@ export default class OrderProductsListLWC extends LightningElement {
     @track error;
     columns = columns;
     @track orderProducts;
+    @track draftStatus = false;  // To enable Confirm button
+    @track activeStatus = false;  // To enable Complete button
     _orderProductsRaw;
+    _orderStatusRaw;
     isCssLoaded = false
+    @track clickedButtonLabel;
+    @track isLoading = false;
 
+    // Load static CSS appCustom.css
+    renderedCallback(){ 
+        if (this.isCssLoaded) return;
+        this.isCssLoaded = true;
+        loadStyle(this, customStyles);
+    }
+
+    @wire(MessageContext)
+    messageContext;
+
+    @wire(getOrderStatus, {sOrderId: '$recordId'})
+    getOrderStatus(wireResult) {
+        this._orderStatusRaw = wireResult;
+        const { data, error } = wireResult;
+        if (data) {
+            this.draftStatus = data === "Draft";
+            this.activeStatus = data === "Activated";
+            this.error = undefined;
+        } else {
+            this.error = error;
+        }
+    }
+
+    // Get Total Order Price
     @wire(getOrderProductsTotalPrice, {sOrderId: '$recordId'})
     totalPrice
 
+    // Get Order Item Total Quantity
     @wire(getOrderProductsTotalQuantity, {sOrderId: '$recordId'})
     totalQuantity
 
+    // Get Order Proucts
     @wire(listOrderProducts, {sOrderId: '$recordId'})
     listOrderProducts(wireResult) {
         const { data, error } = wireResult;
-        this._orderProductsRaw = wireResult;
+        this._orderProductsRaw = wireResult; // Cache original return value
         if (data) {
             this.orderProducts = data.map(elem => ({
-                ...elem, Name: elem.Product2.Name, 
-                CSSClass: "total-padding-right",
-                disabled: elem.Order.Status !== 'Draft'
+                ...elem, 
+                Name: elem.Product2.Name, // Flatten Product Name
+                CSSClass: "total-padding-right",  // Adjust for datatable scrollbar for rows more than total height
+                disabled: elem.Order.Status !== 'Draft'  // Add, Remove buttons disabled
             }));
             this.error = undefined;
         } else {
@@ -99,6 +136,27 @@ export default class OrderProductsListLWC extends LightningElement {
         }
     }
 
+    connectedCallback() {
+        this.subscribeToMessageChannel();
+    }
+
+    subscribeToMessageChannel() {
+        this.subscription = subscribe(
+            this.messageContext,
+            PRODUCTS_TO_CART_CHANNEL,
+            (message) => this.handleMessage(message)
+        );
+    }
+
+    handleMessage(message) {
+        if (message.code === 'REFRESH_CACHE') {
+            refreshApex(this.totalPrice);
+            refreshApex(this.totalQuantity);
+            refreshApex(this._orderProductsRaw);
+        }
+    }
+
+    // Actions
     handleRowAction(event) {
         const action = event.detail.action;
         switch (action.name) {
@@ -117,13 +175,13 @@ export default class OrderProductsListLWC extends LightningElement {
                             variant: 'success'
                         })
                     );
+                    // Refresh Cache
                     const updatedOrders = result.map(rec => {
                         return { 'recordId': rec };
                     });
                     const updatedOrderProducts = [event.detail.row.Id];
                     getRecordNotifyChange(updatedOrders);
                     getRecordNotifyChange(updatedOrderProducts);
-                    getRecordNotifyChange(this.orderProducts);
                     refreshApex(this.totalPrice);
                     refreshApex(this.totalQuantity);
                     refreshApex(this._orderProductsRaw);
@@ -139,12 +197,13 @@ export default class OrderProductsListLWC extends LightningElement {
                 });
                 break;
             case 'remove_from_order':
-                if (event.detail.row.Quantity > 1) {
+                if (event.detail.row.Quantity > 1) {  // No confirmation before removing order products
                     deleteProductFromOrder({
                         sOrderId: this.recordId,
                         sOrderItemId: event.detail.row.Id
                     })
                     .then(result_inner  => {
+                        // Refresh Cache
                         const updatedOrders = result_inner.map(rec => {
                             return { 'recordId': rec };
                         });
@@ -164,7 +223,7 @@ export default class OrderProductsListLWC extends LightningElement {
                             })
                         );
                     });
-                } else {
+                } else {  // Confirmation before removing last of each order products
                     LightningConfirm.open({
                         message: 'Are you sure you want to delete the last "' +  event.detail.row.Name + '" product from the order?',
                         variant: 'header',
@@ -184,12 +243,18 @@ export default class OrderProductsListLWC extends LightningElement {
                                         variant: 'success'
                                     })
                                 );
+                                // Refresh Cache
                                 const updatedOrders = result_inner.map(rec => {
                                     return { 'recordId': rec };
                                 });
                                 const updatedOrderProducts = [event.detail.row.Id];
                                 getRecordNotifyChange(updatedOrders);
                                 getRecordNotifyChange(updatedOrderProducts);
+                                const payload = { 
+                                    code: 'REFRESH_CACHE',
+                                    message: 'Refresh Cache'
+                                };
+                                publish(this.messageContext, CART_TO_PRODUCTS_CHANNEL, payload);
                                 refreshApex(this.totalPrice);
                                 refreshApex(this.totalQuantity);
                                 refreshApex(this._orderProductsRaw);
@@ -221,9 +286,58 @@ export default class OrderProductsListLWC extends LightningElement {
         }
     }
 
-    renderedCallback(){ 
-        if (this.isCssLoaded) return;
-        this.isCssLoaded = true;
-        loadStyle(this, customStyles);
+    handleClick(event) {
+        this.clickedButtonLabel = event.target.label;
+        switch (this.clickedButtonLabel) {
+            case 'Confirm':
+                this.isLoading = true;
+                submitOrderRequest({sOrderId: this.recordId})
+                .then(result => {
+                    if (result.code) {
+                        if (result.code === '200') {
+                            // Refresh cache
+                            getRecordNotifyChange([{recordId: this.recordId}]);
+                            const payload = { 
+                                code: 'REFRESH_CACHE',
+                                message: 'Refresh Cache'
+                            };
+                            publish(this.messageContext, CART_TO_PRODUCTS_CHANNEL, payload);
+                            refreshApex(this._orderStatusRaw);
+                            refreshApex(this._orderProductsRaw);
+                            this.dispatchEvent(
+                                new ShowToastEvent({
+                                    title: 'Success',
+                                    message: 'Order was activated successfully.',
+                                    variant: 'success'
+                                })
+                            );
+                        } else {
+                            this.dispatchEvent(
+                                new ShowToastEvent({
+                                    title: 'Error activating order.',
+                                    message: result.message,
+                                    variant: 'error'
+                                })
+                            );
+                        }
+                    }
+                    this.isLoading = false;
+                })
+                .catch(error => {
+                    this.error = error;
+                    console.error(error);
+                    this.isLoading = false;
+                    this.dispatchEvent(
+                        new ShowToastEvent({
+                            title: 'Error activating order.',
+                            message: error.message,
+                            variant: 'error'
+                        })
+                    );
+                })
+                break;
+            default:
+                break;
+        }
     }
 }

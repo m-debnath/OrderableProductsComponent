@@ -1,6 +1,14 @@
 <!-- sldsValidatorIgnore -->
 <template>
     <lightning-card title="Available Products" icon-name="standard:price_book_entries">
+        <!-- Add to Cart Button -->
+        <div style="position: absolute; top: 12px; right: 18px;">
+            <lightning-button-group>
+                <template if:true={draftStatus}>
+                    <lightning-button disabled={noRowSelected} label="Add to Cart" onclick={handleClick}></lightning-button>
+                </template>
+            </lightning-button-group>
+        </div>
         <div class="slds-var-m-around_medium">
             <div>
                 <p class="slds-var-p-bottom_x-small">
@@ -15,9 +23,8 @@
                     enable-infinite-loading
                     onloadmore={loadMoreData}
                     load-more-offset="20"
-                    hide-checkbox-column="true"
                     max-row-selection="1"
-                    onrowaction={addProudctToOrder}>
+                    onrowselection={getSelectedProduct}>
                 </lightning-datatable>
             </div>
             <div style="text-align: center;" class="slds-var-p-top_x-small">
