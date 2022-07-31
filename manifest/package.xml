@@ -15,10 +15,10 @@
         <members>CartsToAvailableProducts</members>
         <name>LightningMessageChannel</name>
     </types>
-    <types>
+    <!--<types>
         <members>appCustom</members>
         <name>StaticResource</name>
-    </types>
+    </types>-->
     <types>
         <members>Order_To_Cart_Record_Page</members>
         <name>FlexiPage</name>
