@@ -105,6 +105,7 @@ export default class OrderProductsListLWC extends LightningElement {
         const { data, error } = wireResult;
         if (data) {
             this.draftStatus = data === "Draft";
+            this.activeStatus = data === "Activated";
             this.error = undefined;
         } else {
             this.error = error;

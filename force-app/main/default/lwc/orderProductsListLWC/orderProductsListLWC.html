@@ -18,9 +18,16 @@
             <div>
                 <!-- Info message -->
                 <template if:true={isNotEmpty}>
-                    <p class="slds-var-p-bottom_x-small">
-                        Please click the confirm button to activate the order.
-                    </p>
+                    <template if:true={activeStatus}>
+                        <p class="slds-var-p-bottom_x-small">
+                            &nbsp;
+                        </p>
+                    </template>
+                    <template if:false={activeStatus}>
+                        <p class="slds-var-p-bottom_x-small">
+                            Please click the confirm button to activate the order.
+                        </p>
+                    </template>
                 </template>
                 <template if:false={isNotEmpty}>
                     <p class="slds-var-p-bottom_x-small">
