@@ -126,7 +126,6 @@ export default class OrderProductsListLWC extends LightningElement {
         } else {
             this.isNotEmpty = false;
             this.error = error;
-            console.error('Error : ' + JSON.stringify(this.error));
         }
     }
 
@@ -146,7 +145,6 @@ export default class OrderProductsListLWC extends LightningElement {
         } else {
             this.orderProducts = undefined;
             this.error = error;
-            console.error('Error : ' + JSON.stringify(this.error));
         }
     }
 
