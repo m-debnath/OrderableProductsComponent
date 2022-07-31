@@ -3,6 +3,7 @@
     <types>
         <members>OrderProductsController</members>
         <members>OrderableProductsController</members>
+        <members>TestDataFactory</members>
         <name>ApexClass</name>
     </types>
     <types>
