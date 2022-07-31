@@ -85,6 +85,8 @@ export default class OrderProductsListLWC extends LightningElement {
     isCssLoaded = false
     @track clickedButtonLabel;
     @track isLoading = false;
+    @track isNotEmpty = false;
+    @track totalQuantity;
 
     // Load static CSS appCustom.css
     renderedCallback(){ 
@@ -96,13 +98,13 @@ export default class OrderProductsListLWC extends LightningElement {
     @wire(MessageContext)
     messageContext;
 
+    // Get Order Status
     @wire(getOrderStatus, {sOrderId: '$recordId'})
     getOrderStatus(wireResult) {
         this._orderStatusRaw = wireResult;
         const { data, error } = wireResult;
         if (data) {
             this.draftStatus = data === "Draft";
-            this.activeStatus = data === "Activated";
             this.error = undefined;
         } else {
             this.error = error;
@@ -115,7 +117,17 @@ export default class OrderProductsListLWC extends LightningElement {
 
     // Get Order Item Total Quantity
     @wire(getOrderProductsTotalQuantity, {sOrderId: '$recordId'})
-    totalQuantity
+    getOrderProductsTotalQuantity(wireResult) {
+        this.totalQuantity = wireResult;
+        const { data, error } = wireResult;
+        if (data) {
+            this.isNotEmpty = data > 0;
+        } else {
+            this.isNotEmpty = false;
+            this.error = error;
+            console.error('Error : ' + JSON.stringify(this.error));
+        }
+    }
 
     // Get Order Proucts
     @wire(listOrderProducts, {sOrderId: '$recordId'})
@@ -133,6 +145,7 @@ export default class OrderProductsListLWC extends LightningElement {
         } else {
             this.orderProducts = undefined;
             this.error = error;
+            console.error('Error : ' + JSON.stringify(this.error));
         }
     }
 
