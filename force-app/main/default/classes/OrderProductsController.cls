@@ -169,7 +169,7 @@ public with sharing class OrderProductsController {
             gen.writeStringField('name', item.Product2.Name);
             gen.writeStringField('code', item.Product2.ProductCode);
             gen.writeNumberField('unitPrice', item.UnitPrice);
-            gen.writeNumberField('quantity', item.Quantity);
+            gen.writeNumberField('quantity', (Integer) item.Quantity);
             gen.writeEndObject();
           }
           gen.writeEndArray();
