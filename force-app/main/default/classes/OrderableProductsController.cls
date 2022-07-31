@@ -5,11 +5,15 @@ public with sharing class OrderableProductsController {
   @AuraEnabled(cacheable=true)
   public static Map<String, List<SObject>> listEligibleProducts(
     ID sOrderId,
-    Integer sOffset
+    Integer nOffset,
+    Integer nLimit
   ) {
     // Validation for negative numbers
-    if (sOffset < 0) {
-      sOffset = gOffset;
+    if (nOffset < 0) {
+      nOffset = gOffset;
+    }
+    if (nLimit < 0) {
+      nLimit = gLimit;
     }
     Map<String, List<SObject>> result = new Map<String, List<SObject>>();
     try {
@@ -25,8 +29,8 @@ public with sharing class OrderableProductsController {
             WHERE Id = :sOrderId
           )
         ORDER BY Name ASC
-        LIMIT :gLimit
-        OFFSET :sOffset
+        LIMIT :nLimit
+        OFFSET :nOffset
       ];
       // To display actions based on order status on LWC.
       List<Order> orders = [SELECT Status FROM Order WHERE Id = :sOrderId];

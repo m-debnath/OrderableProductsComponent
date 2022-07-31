@@ -31,8 +31,8 @@ export default class OrderableProductsListLWC extends NavigationMixin(LightningE
     @track error;
     data = [];
     columns = columns;
-    @track sOffset = 0;
-    sStep = 5;
+    @track nOffset = 0;
+    nStep = 5;
     targetDatatable;
     @track draftStatus = false;
     _orderStatusRaw;
@@ -63,7 +63,7 @@ export default class OrderableProductsListLWC extends NavigationMixin(LightningE
     }
 
     listEligibleProducts() {
-        listEligibleProducts({ sOrderId: this.recordId, sOffset: this.sOffset })
+        listEligibleProducts({ sOrderId: this.recordId, nOffset: this.nOffset, nLimit: this.nStep })
         .then(result => {
             const orders = JSON.parse(JSON.stringify(result.Order));
             result = JSON.parse(JSON.stringify(result.PricebookEntry));
@@ -89,7 +89,7 @@ export default class OrderableProductsListLWC extends NavigationMixin(LightningE
 
     loadMoreData(event) {
         event.preventDefault();
-        this.sOffset = this.sOffset + this.sStep;
+        this.nOffset = this.nOffset + this.nStep;
         event.target.isLoading = true;
         this.targetDatatable = event.target;
         this.listEligibleProducts();
