@@ -259,10 +259,6 @@ export default class OrderProductsListLWC extends LightningElement {
     handleClick(event) {
         this.clickedButtonLabel = event.target.label;
         switch (this.clickedButtonLabel) {
-            case 'Cancel':
-                this.isLoading = true;
-                console.log('Cancel');
-                break;
             case 'Confirm':
                 this.isLoading = true;
                 submitOrderRequest({sOrderId: this.recordId})
