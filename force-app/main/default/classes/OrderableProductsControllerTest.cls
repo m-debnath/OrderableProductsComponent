@@ -16,7 +16,11 @@ public class OrderableProductsControllerTest {
   static void TestTestDataFactory() {
     // Verify Products
     List<Product2> products = [SELECT Id FROM Product2 LIMIT 100];
-    System.assertEquals(gNumProducts, products.size());
+    System.assertEquals(
+      gNumProducts,
+      products.size(),
+      'Product creation failed.'
+    );
 
     // Verify Pricebook Entries
     PricebookEntry[] pricebookentries = [
@@ -25,7 +29,11 @@ public class OrderableProductsControllerTest {
       WHERE Pricebook2Id = :Test.getStandardPricebookId() AND IsActive = TRUE
       LIMIT 100
     ];
-    System.assertEquals(gNumProducts, pricebookentries.size());
+    System.assertEquals(
+      gNumProducts,
+      pricebookentries.size(),
+      'Price Book Entry creation failed.'
+    );
 
     // Verify Order
     List<Order> orders = [
@@ -43,13 +51,17 @@ public class OrderableProductsControllerTest {
       FROM Order
       WHERE Account.Name = 'Test Account'
     ];
-    System.assertEquals(gNumOrders, orders.size());
+    System.assertEquals(gNumOrders, orders.size(), 'Order creation failed.');
 
     // Verify Eligible Products Count
     Integer nEligibleProducts = OrderableProductsController.countEligibleProducts(
       orders[0].Id
     );
-    System.assertEquals(gNumProducts, nEligibleProducts);
+    System.assertEquals(
+      gNumProducts,
+      nEligibleProducts,
+      'Could not get eligible products count.'
+    );
   }
 
   @isTest
@@ -59,7 +71,7 @@ public class OrderableProductsControllerTest {
       FROM Order
       WHERE Account.Name = 'Test Account'
     ];
-    System.assertEquals(gNumOrders, orders.size());
+    System.assertEquals(gNumOrders, orders.size(), 'Order creation failed.');
 
     // Verify Eligible Products
     List<PricebookEntry> pricebookentries = OrderableProductsController.listEligibleProducts(
@@ -67,7 +79,11 @@ public class OrderableProductsControllerTest {
       gOffset,
       gLimit
     );
-    System.assertEquals(gLimit, pricebookentries.size());
+    System.assertEquals(
+      gLimit,
+      pricebookentries.size(),
+      'Could not get list of eligible products.'
+    );
   }
 
   @isTest
@@ -77,7 +93,7 @@ public class OrderableProductsControllerTest {
       FROM Order
       WHERE Account.Name = 'Test Account'
     ];
-    System.assertEquals(gNumOrders, orders.size());
+    System.assertEquals(gNumOrders, orders.size(), 'Order creation failed.');
 
     // Verify Eligible Products
     List<PricebookEntry> pricebookentries = OrderableProductsController.listEligibleProducts(
@@ -85,6 +101,12 @@ public class OrderableProductsControllerTest {
       -1,
       -1
     );
-    System.assertEquals(gLimit, pricebookentries.size());
+    System.assertEquals(
+      gLimit,
+      pricebookentries.size(),
+      'Expects ' +
+      gLimit +
+      ' products. Does not match.'
+    );
   }
 }
