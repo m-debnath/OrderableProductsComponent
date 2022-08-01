@@ -41,7 +41,9 @@ public with sharing class OrderProductsController {
         FROM OrderItem
         WHERE OrderId = :sOrderId
       ];
-      total_price = (Decimal) result[0].get('expr0');
+      total_price = String.isBlank(String.valueOf(result[0].get('expr0')))
+        ? 0
+        : (Decimal) result[0].get('expr0');
       return total_price;
     } catch (Exception e) {
       throw new AuraHandledException(e.getMessage());
@@ -57,7 +59,9 @@ public with sharing class OrderProductsController {
         FROM OrderItem
         WHERE OrderId = :sOrderId
       ];
-      total_quantity = (Decimal) result[0].get('expr0');
+      total_quantity = String.isBlank(String.valueOf(result[0].get('expr0')))
+        ? 0
+        : (Decimal) result[0].get('expr0');
       return total_quantity;
     } catch (Exception e) {
       throw new AuraHandledException(e.getMessage());
@@ -154,49 +158,42 @@ public with sharing class OrderProductsController {
         FROM OrderItem
         WHERE OrderId = :sOrderId
       ];
-      // Governor limit check
-      if (orders.size() < 100) {
-        for (Order order : orders) {
+      for (Order order : orders) {
+        gen.writeStartObject();
+        gen.writeStringField('accountNumber', order.Account.AccountNumber);
+        gen.writeStringField('orderNumber', order.OrderNumber);
+        gen.writeStringField('type', order.Type);
+        gen.writeStringField('status', order.Status);
+        gen.writeFieldName('orderProducts');
+        gen.writeStartArray();
+        for (OrderItem item : orderItems) {
           gen.writeStartObject();
-          gen.writeStringField('accountNumber', order.Account.AccountNumber);
-          gen.writeStringField('orderNumber', order.OrderNumber);
-          gen.writeStringField('type', order.Type);
-          gen.writeStringField('status', order.Status);
-          gen.writeFieldName('orderProducts');
-          gen.writeStartArray();
-          for (OrderItem item : orderItems) {
-            gen.writeStartObject();
-            gen.writeStringField('name', item.Product2.Name);
-            gen.writeStringField('code', item.Product2.ProductCode);
-            gen.writeNumberField('unitPrice', item.UnitPrice);
-            gen.writeNumberField('quantity', (Integer) item.Quantity);
-            gen.writeEndObject();
-          }
-          gen.writeEndArray();
+          gen.writeStringField('name', item.Product2.Name);
+          gen.writeStringField('code', item.Product2.ProductCode);
+          gen.writeNumberField('unitPrice', item.UnitPrice);
+          gen.writeNumberField('quantity', (Integer) item.Quantity);
           gen.writeEndObject();
-          String requestBody = gen.getAsString();
-          Http http = new Http();
-          HttpRequest request = new HttpRequest();
-          request.setEndpoint('https://mco.requestcatcher.com'); // Make sure to add this in Remote Site Settings
-          request.setMethod('POST');
-          request.setHeader('Content-Type', 'application/json;charset=UTF-8');
-          request.setBody(requestBody);
-          HttpResponse response = http.send(request);
-          if (response.getStatusCode() == 200) {
-            // Activate the order on successful api response
-            order.Status = 'Activated';
-            update order;
-            result.put('code', '200');
-            result.put('message', 'SUCCESS');
-          } else {
-            result.put('code', '400');
-            result.put('message', 'Order submit failed.');
-          }
-          return result;
         }
-      } else {
-        result.put('code', '400');
-        result.put('message', 'Governor limit exceeded.');
+        gen.writeEndArray();
+        gen.writeEndObject();
+        String requestBody = gen.getAsString();
+        Http http = new Http();
+        HttpRequest request = new HttpRequest();
+        request.setEndpoint('https://mco.requestcatcher.com'); // Make sure to add this in Remote Site Settings
+        request.setMethod('POST');
+        request.setHeader('Content-Type', 'application/json;charset=UTF-8');
+        request.setBody(requestBody);
+        HttpResponse response = http.send(request);
+        if (response.getStatusCode() == 200) {
+          // Activate the order on successful api response
+          order.Status = 'Activated';
+          update order;
+          result.put('code', '200');
+          result.put('message', 'SUCCESS');
+        } else {
+          result.put('code', '400');
+          result.put('message', 'Order submit failed.');
+        }
         return result;
       }
       result.put('code', '400');

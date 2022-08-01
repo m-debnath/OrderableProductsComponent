@@ -37,7 +37,10 @@ public class TestDataFactory {
 
   public static void createOrder() {
     // Create the Account
-    Account account = new Account(Name = 'Test Account');
+    Account account = new Account(
+      Name = 'Test Account',
+      AccountNumber = '00001000'
+    );
     insert account;
 
     // Create and Activate the contract
