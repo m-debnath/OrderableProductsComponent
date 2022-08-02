@@ -33,6 +33,7 @@ export default class OrderableProductsListLWC extends NavigationMixin(LightningE
     columns = columns;
     @track nOffset = 0;
     nStep = 5;
+    @track totalNumberOfRows;
     targetDatatable;
     @track draftStatus = false;
     _orderStatusRaw;
@@ -53,13 +54,18 @@ export default class OrderableProductsListLWC extends NavigationMixin(LightningE
             this.error = error;
         }
     }
-    
-    @wire(countEligibleProducts, {sOrderId: '$recordId'})
-    totalNumberOfRows
 
     connectedCallback() {
+        this.getTotalNumberOfRows();
         this.listEligibleProducts();
         this.subscribeToMessageChannel();
+    }
+
+    getTotalNumberOfRows() {
+        countEligibleProducts({ sOrderId: this.recordId })
+        .then(result => {
+            this.totalNumberOfRows = result;
+        })
     }
 
     listEligibleProducts() {
@@ -72,7 +78,7 @@ export default class OrderableProductsListLWC extends NavigationMixin(LightningE
             }));
             this.data = [...this.data, ...result];
             this.error = undefined;
-            if (this.targetDatatable && this.data.length >= this.totalNumberOfRows.data) {
+            if (this.targetDatatable && this.data.length >= this.totalNumberOfRows) {
                 this.targetDatatable.enableInfiniteLoading = false;
             }
             if (this.targetDatatable) this.targetDatatable.isLoading = false;
