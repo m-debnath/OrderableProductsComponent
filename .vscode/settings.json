@@ -8,7 +8,9 @@
   "cSpell.words": [
     "cacheable",
     "Datatable",
+    "loadmore",
     "onloadmore",
-    "onrowselection"
+    "onrowselection",
+    "rowselection"
   ]
 }
