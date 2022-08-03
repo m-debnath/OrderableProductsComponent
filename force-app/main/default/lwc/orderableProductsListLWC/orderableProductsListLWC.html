@@ -5,7 +5,7 @@
         <div style="position: absolute; top: 12px; right: 18px;">
             <lightning-button-group>
                 <template if:true={draftStatus}>
-                    <lightning-button disabled={noRowSelected} label="Add to Cart" onclick={handleClick}></lightning-button>
+                    <lightning-button class="add-to-cart-button" disabled={noRowSelected} label="Add to Cart" onclick={handleClick}></lightning-button>
                 </template>
             </lightning-button-group>
         </div>
@@ -24,10 +24,11 @@
                     onloadmore={loadMoreData}
                     load-more-offset="20"
                     max-row-selection="1"
-                    onrowselection={getSelectedProduct}>
+                    onrowselection={getSelectedProduct}
+                    class="eligible-products-table">
                 </lightning-datatable>
             </div>
-            <div style="text-align: center;" class="slds-var-p-top_x-small">
+            <div style="text-align: center;" class="footer-text slds-var-p-top_x-small">
                 Loaded {data.length} of {totalNumberOfRows} products.
             </div>
         </div>

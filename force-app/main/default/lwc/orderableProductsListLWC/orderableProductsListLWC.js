@@ -39,6 +39,7 @@ export default class OrderableProductsListLWC extends NavigationMixin(LightningE
     _orderStatusRaw;
     @track noRowSelected = true;
     _selectedProduct;
+    subscription = null;
 
     @wire(MessageContext)
     messageContext;
@@ -161,7 +162,6 @@ export default class OrderableProductsListLWC extends NavigationMixin(LightningE
                 });
                 break;
             default:
-                break;
         }
     }
 }

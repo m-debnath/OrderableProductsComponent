@@ -1,7 +1,121 @@
-[{
-	"Id": "01uIw000000dZSBIA2",
-	"Name": "GenWatt Diesel 1000kW",
-	"Product2Id": "01tIw000000L8czIAC",
-	"ProductCode": "GC1060",
-	"UnitPrice": 100000.0
-}]
+[
+	{
+	  "Id": "01uIw000000dZSBIA2",
+	  "Name": "GenWatt Diesel 1000kW",
+	  "Product2Id": "01tIw000000L8czIAC",
+	  "ProductCode": "GC1060",
+	  "UnitPrice": 100000
+	},
+	{
+	  "Id": "01uIw000000dZS4IAM",
+	  "Name": "GenWatt Diesel 10kW",
+	  "Product2Id": "01tIw000000L8csIAC",
+	  "ProductCode": "GC1020",
+	  "UnitPrice": 6000
+	},
+	{
+	  "Id": "01uIw000000dZS3IAM",
+	  "Name": "GenWatt Diesel 200kW",
+	  "Product2Id": "01tIw000000L8crIAC",
+	  "ProductCode": "GC1040",
+	  "UnitPrice": 25000
+	},
+	{
+	  "Id": "01uIw000000dZSIIA2",
+	  "Name": "GenWatt Gasoline 2000kW",
+	  "Product2Id": "01tIw000000L8d6IAC",
+	  "ProductCode": "GC5060",
+	  "UnitPrice": 150000
+	},
+	{
+	  "Id": "01uIw000000dZSGIA2",
+	  "Name": "GenWatt Gasoline 300kW",
+	  "Product2Id": "01tIw000000L8d4IAC",
+	  "ProductCode": "GC5020",
+	  "UnitPrice": 35000
+	},
+	{
+	  "Id": "01uIw000000dZSDIA2",
+	  "Name": "GenWatt Gasoline 750kW",
+	  "Product2Id": "01tIw000000L8d1IAC",
+	  "ProductCode": "GC5040",
+	  "UnitPrice": 75000
+	},
+	{
+	  "Id": "01uIw000000dZS9IAM",
+	  "Name": "GenWatt Propane 100kW",
+	  "Product2Id": "01tIw000000L8cxIAC",
+	  "ProductCode": "GC3020",
+	  "UnitPrice": 15000
+	},
+	{
+	  "Id": "01uIw000000dZSAIA2",
+	  "Name": "GenWatt Propane 1500kW",
+	  "Product2Id": "01tIw000000L8cyIAC",
+	  "ProductCode": "GC3060",
+	  "UnitPrice": 120000
+	},
+	{
+	  "Id": "01uIw000000dZS7IAM",
+	  "Name": "GenWatt Propane 500kW",
+	  "Product2Id": "01tIw000000L8cvIAC",
+	  "ProductCode": "GC3040",
+	  "UnitPrice": 50000
+	},
+	{
+	  "Id": "01uIw000000dZS5IAM",
+	  "Name": "Installation: Industrial - High",
+	  "Product2Id": "01tIw000000L8ctIAC",
+	  "ProductCode": "IN7080",
+	  "UnitPrice": 85000
+	},
+	{
+	  "Id": "01uIw000000dZSHIA2",
+	  "Name": "Installation: Industrial - Low",
+	  "Product2Id": "01tIw000000L8d5IAC",
+	  "ProductCode": "IN7040",
+	  "UnitPrice": 20000
+	},
+	{
+	  "Id": "01uIw000000dZSJIA2",
+	  "Name": "Installation: Industrial - Medium",
+	  "Product2Id": "01tIw000000L8d7IAC",
+	  "ProductCode": "IN7060",
+	  "UnitPrice": 50000
+	},
+	{
+	  "Id": "01uIw000000dZSEIA2",
+	  "Name": "Installation: Portable",
+	  "Product2Id": "01tIw000000L8d2IAC",
+	  "ProductCode": "IN7020",
+	  "UnitPrice": 5000
+	},
+	{
+	  "Id": "01uIw000000dZSCIA2",
+	  "Name": "SLA: Bronze",
+	  "Product2Id": "01tIw000000L8d0IAC",
+	  "ProductCode": "SL9020",
+	  "UnitPrice": 10000
+	},
+	{
+	  "Id": "01uIw000000dZSFIA2",
+	  "Name": "SLA: Gold",
+	  "Product2Id": "01tIw000000L8d3IAC",
+	  "ProductCode": "SL9060",
+	  "UnitPrice": 30000
+	},
+	{
+	  "Id": "01uIw000000dZS8IAM",
+	  "Name": "SLA: Platinum",
+	  "Product2Id": "01tIw000000L8cwIAC",
+	  "ProductCode": "SL9080",
+	  "UnitPrice": 40000
+	},
+	{
+	  "Id": "01uIw000000dZS6IAM",
+	  "Name": "SLA: Silver",
+	  "Product2Id": "01tIw000000L8cuIAC",
+	  "ProductCode": "SL9040",
+	  "UnitPrice": 20000
+	}
+]
