@@ -1,23 +1,60 @@
-public with sharing class OrderSubmitService {
-  String sOrderId;
-
-  public OrderSubmitService(String sOrderId) {
-    this.sOrderId = sOrderId;
+/**
+ * Represents various methods related to order.
+ * E.g. Order validation.
+ * E.g. Order submission.
+ */
+public with sharing class OrderServices {
+  /**
+   * Validates an order before submission.
+   * @param sOrderId Order Id
+   */
+  public String validateOrder(String sOrderId) {
+    try {
+      List<Order> orders = [
+        SELECT Id, Account.AccountNumber, OrderNumber, Status, Type
+        FROM Order
+        WHERE Id = :sOrderId
+      ];
+      List<OrderItem> orderItems = [
+        SELECT Id, Product2.Name, Product2.ProductCode, UnitPrice, Quantity
+        FROM OrderItem
+        WHERE OrderId = :sOrderId
+      ];
+      if (orders.size() != 1) {
+        return 'Order not found.';
+      } else {
+        if (orders[0].Status != 'Draft') {
+          return 'Order should be in "Draft" status.';
+        } else {
+          if (orderItems.size() > 0) {
+            return 'SUCCESS';
+          } else {
+            return 'Order does not have any products.';
+          }
+        }
+      }
+    } catch (Exception e) {
+      throw new AuraHandledException(e.getMessage());
+    }
   }
 
-  public String submitOrder() {
+  /**
+   * Submits an order to external API.
+   * @param sOrderId Order Id
+   */
+  public String submitOrder(String sOrderId) {
     JSONGenerator gen = JSON.createGenerator(true);
     String result;
     try {
       List<Order> orders = [
         SELECT Id, Account.AccountNumber, OrderNumber, Status, Type
         FROM Order
-        WHERE Id = :this.sOrderId
+        WHERE Id = :sOrderId
       ];
       List<OrderItem> orderItems = [
         SELECT Id, Product2.Name, Product2.ProductCode, UnitPrice, Quantity
         FROM OrderItem
-        WHERE OrderId = :this.sOrderId
+        WHERE OrderId = :sOrderId
       ];
       for (Order order : orders) {
         gen.writeStartObject();

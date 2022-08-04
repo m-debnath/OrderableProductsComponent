@@ -140,18 +140,13 @@ public with sharing class OrderProductsController {
     JSONGenerator gen = JSON.createGenerator(true);
     Map<String, String> result = new Map<String, String>();
     try {
-      OrderValidationService orderValidationService = new OrderValidationService(
-        sOrderId
-      );
-      String validationResult = orderValidationService.validateOrder();
+      OrderServices orderServices = new OrderServices();
+      String validationResult = orderServices.validateOrder(sOrderId);
       if (validationResult != 'SUCCESS') {
         result.put('code', '400');
         result.put('message', validationResult);
       } else {
-        OrderSubmitService orderSubmitService = new OrderSubmitService(
-          sOrderId
-        );
-        String submitResult = orderSubmitService.submitOrder();
+        String submitResult = orderServices.submitOrder(sOrderId);
         if (submitResult != 'SUCCESS') {
           result.put('code', '400');
           result.put('message', submitResult);
