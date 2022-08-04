@@ -18,10 +18,10 @@
         <members>CartsToAvailableProducts</members>
         <name>LightningMessageChannel</name>
     </types>
-    <!--<types>
-        <members>appCustom</members>
-        <name>StaticResource</name>
-    </types>-->
+    <types>
+        <members>Request_Catcher_Creds</members>
+        <name>NamedCredential</name>
+    </types>
     <types>
         <members>Order_To_Cart_Record_Page</members>
         <name>FlexiPage</name>
