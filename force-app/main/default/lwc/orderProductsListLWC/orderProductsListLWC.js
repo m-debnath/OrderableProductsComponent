@@ -16,7 +16,7 @@ import { publish, subscribe, MessageContext } from 'lightning/messageService';
 import PRODUCTS_TO_CART_CHANNEL from '@salesforce/messageChannel/AvailableProductsToCart__c';
 import CART_TO_PRODUCTS_CHANNEL from '@salesforce/messageChannel/CartsToAvailableProducts__c';
 
-// Datatable column definiton
+// Datatable column definition
 const columns = [
     { 
         label: 'Product', 
@@ -129,7 +129,7 @@ export default class OrderProductsListLWC extends LightningElement {
         }
     }
 
-    // Get Order Proucts
+    // Get Order Products
     @wire(listOrderProducts, {sOrderId: '$recordId'})
     listOrderProducts(wireResult) {
         const { data, error } = wireResult;
@@ -214,7 +214,7 @@ export default class OrderProductsListLWC extends LightningElement {
                         sOrderId: this.recordId,
                         sOrderItemId: event.detail.row.Id
                     })
-                    .then(result_inner  => {
+                    .then(result_inner => {
                         // Refresh Cache
                         const updatedOrders = result_inner.map(rec => {
                             return { 'recordId': rec };
@@ -262,11 +262,6 @@ export default class OrderProductsListLWC extends LightningElement {
                                 const updatedOrderProducts = [event.detail.row.Id];
                                 getRecordNotifyChange(updatedOrders);
                                 getRecordNotifyChange(updatedOrderProducts);
-                                const payload = { 
-                                    code: 'REFRESH_CACHE',
-                                    message: 'Refresh Cache'
-                                };
-                                publish(this.messageContext, CART_TO_PRODUCTS_CHANNEL, payload);
                                 refreshApex(this.totalPrice);
                                 refreshApex(this.totalQuantity);
                                 refreshApex(this._orderProductsRaw);
@@ -294,7 +289,6 @@ export default class OrderProductsListLWC extends LightningElement {
                 }
                 break;
             default:
-                break;
         }
     }
 
@@ -349,7 +343,6 @@ export default class OrderProductsListLWC extends LightningElement {
                 })
                 break;
             default:
-                break;
         }
     }
 }

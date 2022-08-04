@@ -9,7 +9,7 @@
             <lightning-button-group>
                 <template if:true={isNotEmpty}>
                     <template if:true={draftStatus}>
-                        <lightning-button disabled={isLoading} variant="brand" label="Confirm" onclick={handleClick}></lightning-button>
+                        <lightning-button class="confirm-order-button" disabled={isLoading} variant="brand" label="Confirm" onclick={handleClick}></lightning-button>
                     </template>
                 </template>
             </lightning-button-group>
@@ -24,13 +24,13 @@
                         </p>
                     </template>
                     <template if:false={activeStatus}>
-                        <p class="slds-var-p-bottom_x-small">
+                        <p class="greeting-text slds-var-p-bottom_x-small">
                             Please click the confirm button to activate the order.
                         </p>
                     </template>
                 </template>
                 <template if:false={isNotEmpty}>
-                    <p class="slds-var-p-bottom_x-small">
+                    <p class="greeting-text slds-var-p-bottom_x-small">
                         Please add something from the available products list.
                     </p>
                 </template>
@@ -38,6 +38,7 @@
             <!-- Products in Cart Data Table -->
             <div class="slds-border_bottom" style="height: 239px; overflow-x: hidden; border-bottom-width: medium; border-bottom-color: rgb(1, 118, 211);">
                 <lightning-datatable
+                    class="order-products-table"
                     key-field="Id"
                     data={orderProducts}
                     columns={columns}
@@ -49,11 +50,11 @@
             </div>
             <!-- Total Row -->
             <div class="slds-grid slds-var-p-top_x-small">
-                <div class="slds-col slds-var-p-left_small slds-text-align_left" style="width: 140px; font-weight: bold;">Total</div>
-                <div class="slds-col slds-var-p-left_large slds-text-align_center">{totalQuantity.data}</div>
+                <div class="footer-subject slds-col slds-var-p-left_small slds-text-align_left" style="width: 140px; font-weight: bold;">Total</div>
+                <div class="footer-quantity slds-col slds-var-p-left_large slds-text-align_center">{totalQuantity.data}</div>
                 <div class="slds-col">&nbsp;</div>
                 <div class="slds-col slds-var-p-right_large slds-text-align_right">
-                    <lightning-formatted-number value={totalPrice.data} format-style="currency"></lightning-formatted-number>
+                    <lightning-formatted-number class="footer-price" value={totalPrice.data} format-style="currency"></lightning-formatted-number>
                 </div>
             </div>
         </div>
