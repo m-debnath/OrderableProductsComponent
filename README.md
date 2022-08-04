@@ -8,6 +8,10 @@ Please follow below instructions to deploy this to your dev org using VS Code.
 1. Create a new Static Resource named: `appCustom`.
 2. Upload the CSS file. The file is present in `force-app\main\default\staticresources`.
 
+### Add a new `Remote Site` in your org.
+- Name: Request_Catcher_Order_Submit
+- URL: https://mco.requestcatcher.com
+
 ### Clone this project into you local devlopment environment.
 
 `git clone https://github.com/m-debnath/OrderableProductsComponent.git`
@@ -45,7 +49,7 @@ Lightning Message Channels:
 - CartsToAvailableProducts
 
 Named Credentials:
-- Request_Catcher_Creds
+- Request_Catcher_Creds ( Open Named Credentials and set the password )
 
 Flexi Pages:
 - Order_To_Cart_Record_Page
