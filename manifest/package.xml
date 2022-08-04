@@ -5,6 +5,8 @@
         <members>OrderProductsControllerTest</members>
         <members>OrderableProductsController</members>
         <members>OrderableProductsControllerTest</members>
+        <members>OrderValidationService</members>
+        <members>OrderSubmitService</members>
         <members>TestDataFactory</members>
         <name>ApexClass</name>
     </types>
