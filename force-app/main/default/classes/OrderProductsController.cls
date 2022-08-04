@@ -179,7 +179,7 @@ public with sharing class OrderProductsController {
         String requestBody = gen.getAsString();
         Http http = new Http();
         HttpRequest request = new HttpRequest();
-        request.setEndpoint('https://mco.requestcatcher.com'); // Make sure to add this in Remote Site Settings
+        request.setEndpoint('callout:Request_Catcher_Creds/test/'); // Make sure to add this in Named Credentials and remote site settings
         request.setMethod('POST');
         request.setHeader('Content-Type', 'application/json;charset=UTF-8');
         request.setBody(requestBody);
