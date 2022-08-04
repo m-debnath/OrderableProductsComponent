@@ -1,15 +1,21 @@
 public with sharing class OrderValidationService {
-  public static String validateOrder(String sOrderId) {
+  String sOrderId;
+
+  public OrderValidationService(String sOrderId) {
+    this.sOrderId = sOrderId;
+  }
+
+  public String validateOrder() {
     try {
       List<Order> orders = [
         SELECT Id, Account.AccountNumber, OrderNumber, Status, Type
         FROM Order
-        WHERE Id = :sOrderId
+        WHERE Id = :this.sOrderId
       ];
       List<OrderItem> orderItems = [
         SELECT Id, Product2.Name, Product2.ProductCode, UnitPrice, Quantity
         FROM OrderItem
-        WHERE OrderId = :sOrderId
+        WHERE OrderId = :this.sOrderId
       ];
       if (orders.size() != 1) {
         return 'Order not found.';

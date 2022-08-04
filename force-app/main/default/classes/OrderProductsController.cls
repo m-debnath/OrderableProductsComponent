@@ -140,18 +140,34 @@ public with sharing class OrderProductsController {
     JSONGenerator gen = JSON.createGenerator(true);
     Map<String, String> result = new Map<String, String>();
     try {
-      String validationResult = OrderValidationService.validateOrder(sOrderId);
+      OrderValidationService orderValidationService = new OrderValidationService(
+        sOrderId
+      );
+      String validationResult = orderValidationService.validateOrder();
       if (validationResult != 'SUCCESS') {
         result.put('code', '400');
         result.put('message', validationResult);
       } else {
-        String submitResult = OrderSubmitService.submitOrder(sOrderId);
+        OrderSubmitService orderSubmitService = new OrderSubmitService(
+          sOrderId
+        );
+        String submitResult = orderSubmitService.submitOrder();
         if (submitResult != 'SUCCESS') {
           result.put('code', '400');
           result.put('message', submitResult);
         } else {
           result.put('code', '200');
           result.put('message', 'SUCCESS');
+          List<Order> orders = [
+            SELECT Id, Account.AccountNumber, OrderNumber, Status, Type
+            FROM Order
+            WHERE Id = :sOrderId
+          ];
+          for (Order order : orders) {
+            // Activate the order on successful api response
+            order.Status = 'Activated';
+            update order;
+          }
         }
       }
       return result;

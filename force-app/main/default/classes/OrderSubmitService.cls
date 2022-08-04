@@ -1,17 +1,23 @@
 public with sharing class OrderSubmitService {
-  public static String submitOrder(String sOrderId) {
+  String sOrderId;
+
+  public OrderSubmitService(String sOrderId) {
+    this.sOrderId = sOrderId;
+  }
+
+  public String submitOrder() {
     JSONGenerator gen = JSON.createGenerator(true);
     String result;
     try {
       List<Order> orders = [
         SELECT Id, Account.AccountNumber, OrderNumber, Status, Type
         FROM Order
-        WHERE Id = :sOrderId
+        WHERE Id = :this.sOrderId
       ];
       List<OrderItem> orderItems = [
         SELECT Id, Product2.Name, Product2.ProductCode, UnitPrice, Quantity
         FROM OrderItem
-        WHERE OrderId = :sOrderId
+        WHERE OrderId = :this.sOrderId
       ];
       for (Order order : orders) {
         gen.writeStartObject();
@@ -40,9 +46,6 @@ public with sharing class OrderSubmitService {
         request.setBody(requestBody);
         HttpResponse response = http.send(request);
         if (response.getStatusCode() == 200) {
-          // Activate the order on successful api response
-          order.Status = 'Activated';
-          update order;
           result = 'SUCCESS';
         } else {
           result = 'Order submit failed.';
