@@ -11,6 +11,10 @@
     "loadmore",
     "onloadmore",
     "onrowselection",
-    "rowselection"
+    "Pricebook",
+    "rowaction",
+    "rowselection",
+    "sfdx",
+    "showtoast"
   ]
 }
