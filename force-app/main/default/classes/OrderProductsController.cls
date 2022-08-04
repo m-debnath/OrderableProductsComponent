@@ -1,4 +1,7 @@
 public with sharing class OrderProductsController {
+  /**
+   * Queries and returns Order Products for given Order.
+   */
   @AuraEnabled(cacheable=true)
   public static List<OrderItem> listOrderProducts(ID sOrderId) {
     try {
@@ -21,6 +24,9 @@ public with sharing class OrderProductsController {
     }
   }
 
+  /**
+   * Queries and returns Order Status for given Order.
+   */
   @AuraEnabled(cacheable=true)
   public static String getOrderStatus(ID sOrderId) {
     String order_status;
@@ -32,6 +38,10 @@ public with sharing class OrderProductsController {
     }
   }
 
+  /**
+   * Queries and returns Total Price for all
+   * Order Products for given Order.
+   */
   @AuraEnabled(cacheable=true)
   public static Decimal getOrderProductsTotalPrice(ID sOrderId) {
     Decimal total_price;
@@ -50,6 +60,10 @@ public with sharing class OrderProductsController {
     }
   }
 
+  /**
+   * Queries and returns Total Quantity of
+   * Order Products for given Order.
+   */
   @AuraEnabled(cacheable=true)
   public static Decimal getOrderProductsTotalQuantity(ID sOrderId) {
     Decimal total_quantity;
@@ -68,6 +82,9 @@ public with sharing class OrderProductsController {
     }
   }
 
+  /**
+   * Adds a new Product to given Order.
+   */
   @AuraEnabled
   public static List<Id> addProductToOrder(
     ID sOrderId,
@@ -105,6 +122,9 @@ public with sharing class OrderProductsController {
     }
   }
 
+  /**
+   * Removes a Product to given Order.
+   */
   @AuraEnabled
   public static List<Id> deleteProductFromOrder(ID sOrderId, ID sOrderItemId) {
     Boolean bToUpdate = false;
@@ -135,6 +155,9 @@ public with sharing class OrderProductsController {
     }
   }
 
+  /**
+   * Submits the given order to external API.
+   */
   @AuraEnabled
   public static Map<String, String> submitOrderRequest(ID sOrderId) {
     JSONGenerator gen = JSON.createGenerator(true);

@@ -2,6 +2,10 @@ public with sharing class OrderableProductsController {
   static Integer gLimit = 5;
   static Integer gOffset = 5;
 
+  /**
+   * Lists all the Products present in active
+   * Price Book Entry for the given Order.
+   */
   @AuraEnabled(cacheable=true)
   public static List<PricebookEntry> listEligibleProducts(
     ID sOrderId,
@@ -36,6 +40,10 @@ public with sharing class OrderableProductsController {
     }
   }
 
+  /**
+   * Counts all the Products present in active
+   * Price Book Entry for the given Order.
+   */
   @AuraEnabled(cacheable=true)
   public static Integer countEligibleProducts(ID sOrderId) {
     try {
