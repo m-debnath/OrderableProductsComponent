@@ -7,6 +7,7 @@ Please follow below instructions to deploy this to your dev org using VS Code.
 ### Deploy the `appCustom.css` file as a new Static Resource. ( Optional - Needed for data table padding while scrolling )
 1. Create a new Static Resource named: `appCustom`.
 2. Upload the CSS file. The file is present in `force-app\main\default\staticresources`.
+3. Make sure to choose Cache Control as Public.
 
 ### Add a new `Remote Site` in your org.
 - Name: Request_Catcher_Order_Submit
@@ -49,7 +50,7 @@ Lightning Message Channels:
 - CartsToAvailableProducts
 
 Named Credentials:
-- Request_Catcher_Creds ( Open Named Credentials and set the password )
+- Request_Catcher_Creds
 
 Flexi Pages:
 - Order_To_Cart_Record_Page
@@ -59,3 +60,8 @@ Flexi Pages:
 Go to Setup > Object Manager > Order > Lightning Record Pages.
 A new page `Order_To_Cart_Record_Page` should be available.
 Open it in Lightning App Build and Activate it as Org Wide Default.
+
+#### Create an Account, create a Contract under it and Activate it.
+#### Create an Order and associate with the Contract.
+#### Also associate the Standard Pricebook to the order.
+#### Test the new Order Page. =)
