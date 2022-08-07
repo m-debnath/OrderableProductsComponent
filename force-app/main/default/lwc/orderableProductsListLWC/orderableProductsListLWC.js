@@ -40,6 +40,7 @@ export default class OrderableProductsListLWC extends NavigationMixin(LightningE
     @track noRowSelected = true;
     _selectedProduct;
     subscription = null;
+    greeting_text = '';
 
     @wire(MessageContext)
     messageContext;
@@ -66,6 +67,11 @@ export default class OrderableProductsListLWC extends NavigationMixin(LightningE
         countEligibleProducts({ sOrderId: this.recordId })
         .then(result => {
             this.totalNumberOfRows = result;
+            if (result === 0) {
+                this.greeting_text = 'Please add a Price Book to the order to see the list of available Products.'
+            } else {
+                this.greeting_text = 'Please select a product and click "Add to Cart" button to proceed.'
+            }
         })
     }
 
