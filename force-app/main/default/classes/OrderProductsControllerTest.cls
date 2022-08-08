@@ -11,6 +11,8 @@ public class OrderProductsControllerTest {
   static String gSubmitOrderNotFound = 'Order not found.';
   static String gSubmitOrderNotDraft = 'Order should be in "Draft" status.';
   static String gSubmitOrderSubmitFailed = 'Order submit failed.';
+  static String gAccountNumberMissingMessage = 'Account Number should be present.';
+  static String gActiveContractMissingMessage = 'Order should have an Activated Contract.';
 
   private class RestMockSuccess implements HttpCalloutMock {
     public HTTPResponse respond(HTTPRequest req) {
@@ -33,6 +35,7 @@ public class OrderProductsControllerTest {
     Integer numProducts = 17;
     TestDataFactory.createProductsAndPrices(numProducts);
     TestDataFactory.createOrder();
+    TestDataFactory.createOrderDraftContract();
   }
 
   @isTest
@@ -618,6 +621,121 @@ public class OrderProductsControllerTest {
     );
     System.assertEquals(
       gSubmitOrderNotFound,
+      response.get('message'),
+      'Submit order response message does not match.'
+    );
+  }
+
+  @isTest
+  static void TestSubmitOrderMissingAccountNumber() {
+    List<Order> orders = [
+      SELECT Id
+      FROM Order
+      WHERE Account.Name = 'Test Account'
+    ];
+    System.assertEquals(gNumOrders, orders.size(), 'Order creation failed.');
+
+    // Nullify Account Number
+    List<Account> accounts = [
+      SELECT Id, AccountNumber
+      FROM Account
+      WHERE Name = 'Test Account'
+    ];
+    for (Account account : accounts) {
+      account.AccountNumber = '';
+    }
+    update accounts;
+
+    // Get eligible products
+    List<PricebookEntry> priceBookEntries = OrderableProductsController.listEligibleProducts(
+      orders[0].Id,
+      gOffset,
+      gLimit
+    );
+    Decimal totalProductPrice = 0;
+    System.assertEquals(
+      gLimit,
+      priceBookEntries.size(),
+      'Could not get list of eligble price book entries.'
+    );
+
+    // Add products to order
+    for (PriceBookEntry priceBookEntry : priceBookEntries) {
+      OrderProductsController.addProductToOrder(
+        orders[0].Id,
+        priceBookEntry.Product2Id,
+        priceBookEntry.Id,
+        priceBookEntry.UnitPrice
+      );
+      totalProductPrice = totalProductPrice + priceBookEntry.UnitPrice;
+    }
+
+    // Submit Order
+    Test.setMock(HttpCalloutMock.class, new RestMockSuccess());
+    Test.startTest();
+    Map<String, String> response = OrderProductsController.submitOrderRequest(
+      orders[0].Id
+    );
+    Test.StopTest();
+    System.assertEquals(
+      gSubmitResponseFailure,
+      response.get('code'),
+      'Submit order response not failure.'
+    );
+    System.assertEquals(
+      gAccountNumberMissingMessage,
+      response.get('message'),
+      'Submit order response message does not match.'
+    );
+  }
+
+  @isTest
+  static void TestSubmitOrderMissingActiveContract() {
+    List<Order> orders = [
+      SELECT Id
+      FROM Order
+      WHERE Account.Name = 'Test Account Draft Contract'
+    ];
+    System.assertEquals(gNumOrders, orders.size(), 'Order creation failed.');
+
+    // Get eligible products
+    List<PricebookEntry> priceBookEntries = OrderableProductsController.listEligibleProducts(
+      orders[0].Id,
+      gOffset,
+      gLimit
+    );
+    Decimal totalProductPrice = 0;
+    System.assertEquals(
+      gLimit,
+      priceBookEntries.size(),
+      'Could not get list of eligble price book entries.'
+    );
+
+    // Add products to order
+    for (PriceBookEntry priceBookEntry : priceBookEntries) {
+      OrderProductsController.addProductToOrder(
+        orders[0].Id,
+        priceBookEntry.Product2Id,
+        priceBookEntry.Id,
+        priceBookEntry.UnitPrice
+      );
+      totalProductPrice = totalProductPrice + priceBookEntry.UnitPrice;
+    }
+
+    // Submit Order
+    Test.setMock(HttpCalloutMock.class, new RestMockSuccess());
+    Test.startTest();
+    Map<String, String> response = OrderProductsController.submitOrderRequest(
+      orders[0].Id
+    );
+    Test.StopTest();
+    System.assertEquals(
+      gSubmitResponseFailure,
+      response.get('code'),
+      'Submit order response not failure.'
+    );
+    System.assertEquals(
+      gActiveContractMissingMessage,
       response.get('message'),
       'Submit order response message does not match.'
     );

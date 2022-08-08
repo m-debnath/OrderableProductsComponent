@@ -63,4 +63,31 @@ public class TestDataFactory {
     );
     insert order;
   }
+
+  public static void createOrderDraftContract() {
+    // Create the Account
+    Account account = new Account(
+      Name = 'Test Account Draft Contract',
+      AccountNumber = '00001000'
+    );
+    insert account;
+
+    // Create and Activate the contract
+    Contract contract = new Contract(
+      AccountId = account.Id,
+      ContractTerm = 24,
+      Status = 'Draft'
+    );
+    insert contract;
+
+    // Create the Draft Order
+    Order order = new Order(
+      AccountId = account.Id,
+      ContractId = contract.Id,
+      Pricebook2Id = Test.getStandardPricebookId(),
+      EffectiveDate = Date.Today(),
+      Status = 'Draft'
+    );
+    insert order;
+  }
 }

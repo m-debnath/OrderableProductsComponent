@@ -25,7 +25,7 @@ public with sharing class OrderServices {
           return 'Account Number should be present.';
         }
         if (String.isBlank(orders[0].Type)) {
-          return 'Order Type should not be blank';
+          return 'Order Type should not be blank.';
         }
         List<Contract> contracts = [
           SELECT Id, Status
