@@ -156,6 +156,40 @@ public with sharing class OrderProductsController {
   }
 
   /**
+   * Assigns Standard Pricebook to Order.
+   */
+  @AuraEnabled
+  public static List<Id> assignPricebook2Id(ID sOrderId) {
+    List<Id> updatedIds = new List<Id>();
+    updatedIds.add(sOrderId);
+    Id standardPricebook2Id;
+    List<Pricebook2> pricebooks = [
+      SELECT Id
+      FROM PriceBook2
+      WHERE IsStandard = TRUE
+    ];
+    try {
+      if (pricebooks.size() > 0) {
+        standardPricebook2Id = pricebooks[0].Id;
+        List<Order> orders = [
+          SELECT Id, Pricebook2Id
+          FROM Order
+          WHERE Id = :sOrderId
+        ];
+        if (orders.size() > 0) {
+          for (Order order : orders) {
+            order.Pricebook2Id = standardPricebook2Id;
+          }
+          update orders;
+        }
+      }
+      return updatedIds;
+    } catch (Exception e) {
+      throw new AuraHandledException(e.getMessage());
+    }
+  }
+
+  /**
    * Submits the given order to external API.
    */
   @AuraEnabled

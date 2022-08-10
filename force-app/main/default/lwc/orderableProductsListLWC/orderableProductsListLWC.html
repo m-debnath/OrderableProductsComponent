@@ -4,6 +4,9 @@
         <!-- Add to Cart Button -->
         <div style="position: absolute; top: 12px; right: 18px;">
             <lightning-button-group>
+                <template if:true={showAddPriceBookButton}>
+                    <lightning-button class="add-price-book-button" label="Assign Standard Pricebook" onclick={handleClick}></lightning-button>
+                </template>
                 <template if:true={draftStatus}>
                     <lightning-button class="add-to-cart-button" disabled={noRowSelected} label="Add to Cart" onclick={handleClick}></lightning-button>
                 </template>

@@ -47,6 +47,15 @@ public with sharing class OrderableProductsController {
   @AuraEnabled(cacheable=true)
   public static Integer countEligibleProducts(ID sOrderId) {
     try {
+      // Check if Price Book is associated with Order.
+      List<order> orders = [
+        SELECT Id, Pricebook2Id
+        FROM Order
+        WHERE Id = :sOrderId
+      ];
+      if (String.isBlank(orders[0].Pricebook2Id)) {
+        return -1;
+      }
       // Count all the active Pricebook Entries for Current Order's Pricebook Id
       return [
         SELECT COUNT()

@@ -6,6 +6,7 @@ import { getRecordNotifyChange } from 'lightning/uiRecordApi';
 import listEligibleProducts from '@salesforce/apex/OrderableProductsController.listEligibleProducts';
 import countEligibleProducts from '@salesforce/apex/OrderableProductsController.countEligibleProducts';
 import addProductToOrder from '@salesforce/apex/OrderProductsController.addProductToOrder';
+import assignPricebook2Id from '@salesforce/apex/OrderProductsController.assignPricebook2Id';
 import { publish, subscribe, MessageContext } from 'lightning/messageService';
 import PRODUCTS_TO_CART_CHANNEL from '@salesforce/messageChannel/AvailableProductsToCart__c';
 import CART_TO_PRODUCTS_CHANNEL from '@salesforce/messageChannel/CartsToAvailableProducts__c';
@@ -41,6 +42,7 @@ export default class OrderableProductsListLWC extends NavigationMixin(LightningE
     _selectedProduct;
     subscription = null;
     greeting_text = '';
+    showAddPriceBookButton = false;
 
     @wire(MessageContext)
     messageContext;
@@ -67,10 +69,14 @@ export default class OrderableProductsListLWC extends NavigationMixin(LightningE
         countEligibleProducts({ sOrderId: this.recordId })
         .then(result => {
             this.totalNumberOfRows = result;
-            if (result === 0) {
-                this.greeting_text = 'Please add a Price Book to the order to see the list of available Products.'
+            if (result === -1) {
+                this.totalNumberOfRows = 0;
+                this.greeting_text = 'Please add a Price Book to the order to see the list of available Products.';
+                this.showAddPriceBookButton = true;
+            } else if (result === 0) {
+                this.greeting_text = 'The assigned Price Book does not have any available products.';
             } else {
-                this.greeting_text = 'Please select a product and click "Add to Cart" button to proceed.'
+                this.greeting_text = 'Please select a product and click "Add to Cart" button to proceed.';
             }
         })
     }
@@ -161,6 +167,25 @@ export default class OrderableProductsListLWC extends NavigationMixin(LightningE
                     this.dispatchEvent(
                         new ShowToastEvent({
                             title: 'Error adding product to the order.',
+                            message: error.body.message,
+                            variant: 'error'
+                        })
+                    );
+                });
+                break;
+            case 'Assign Standard Pricebook':
+                assignPricebook2Id({ sOrderId: this.recordId})
+                .then(result => {
+                    const updatedRecords = result.map(rec => {
+                        return { 'recordId': rec };
+                    });
+                    getRecordNotifyChange(updatedRecords);
+                    window.location.reload();
+                })
+                .catch(error => {
+                    this.dispatchEvent(
+                        new ShowToastEvent({
+                            title: 'Error assigning standard pricebook to the order.',
                             message: error.body.message,
                             variant: 'error'
                         })
